@@ -18,7 +18,6 @@ export default function inicio_sesion() {
   const { errors } = formState;
 
   const sendData = (data) => {
-    //console.log(data);
     var data = {"correo":data.correo, "clave":data.clave, "action":"autenticar"};
     enviar('', data).then((info) => {
       console.log(info);
