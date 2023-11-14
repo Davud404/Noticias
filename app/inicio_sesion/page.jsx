@@ -1,26 +1,40 @@
 "use client";
-import * as Yup from "yup";
+import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { enviar } from "@/hooks/Conexion";
-
-export default function inicio_sesion() {
+import { inicio_sesion } from "@/hooks/Autenticacion";
+import { estaSesion } from '@/hooks/SessionUtil';
+import mensajes from '@/componentes/Mensajes';
+import { useRouter } from 'next/navigation';
+export default function Inicio_sesion() {
+  //router
+  const router = useRouter();
+  //validaciones
   const validationShema = Yup.object().shape({
-    correo: Yup.string()
-      .required("Ingrese un correo electronico")
-      .email("Se requiere correo valido"),
-    clave: Yup.string()
-      .required("Ingrese su clave")
+    correo: Yup.string().required("Ingrese un correo electronico").email("Se requiere correo valido"),
+    clave: Yup.string().required("Ingrese su clave")
   });
 
   const formOptions = { resolver: yupResolver(validationShema) };
   const { register, handleSubmit, formState } = useForm(formOptions);
-  const { errors } = formState;
+  let { errors } = formState;
 
   const sendData = (data) => {
-    var data = {"correo":data.correo, "clave":data.clave, "action":"autenticar"};
-    enviar('', data).then((info) => {
+    var data = { "correo": data.correo, "clave": data.clave, "action": "autenticar" };
+    /*enviar('', data).then((info) => {
       console.log(info);
+    });*/
+    inicio_sesion(data).then((info) => {
+      console.log(info);
+      if (!estaSesion()) {
+        //JOption 
+        mensajes("Error al iniciar sesión!", info[0].msg, "error");
+      } else {
+        //JOption 
+        mensajes("Has ingresado al sistema!", "Bienvenido");
+        router.push("/principal");
+      }
+
     });
   };
 
@@ -46,17 +60,10 @@ export default function inicio_sesion() {
 
                       <div className="form-outline form-white mb-4">
                         <input
-                          {...register("correo")}
-                          name="correo"
-                          id="correo"
-                          className={`form-control ${
-                            errors.correo ? "is-invalid" : ""
-                          }`}
-                        />
-                        <label className="form-label" for="typeEmailX">
-                          Correo
-                        </label>
-                        <div className="alert alert-danger invalid-feedback">
+                          {...register('correo')} name="correo" id="correo"
+                          className={`form-control ${errors.correo ? 'is-invalid' : ''}`} />
+                        <label className="form-label">Correo</label>
+                        <div className='alert alert-danger invalid-feedback'>
                           {errors.correo?.message}
                         </div>
                       </div>
@@ -67,11 +74,10 @@ export default function inicio_sesion() {
                           name="clave"
                           type="password"
                           id="clave"
-                          className={`form-control ${
-                            errors.clave ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.clave ? "is-invalid" : ""
+                            }`}
                         />
-                        <label className="form-label" for="typePasswordX">
+                        <label className="form-label">
                           Contraseña
                         </label>
                         <div className="alert alert-danger invalid-feedback">
@@ -79,14 +85,14 @@ export default function inicio_sesion() {
                         </div>
                       </div>
 
-                      <p class="small mb-5 pb-lg-2">
+                      <p className="small mb-5 pb-lg-2">
                         <a className="text-white-50" href="#!">
                           Olvido su contraseña
                         </a>
                       </p>
 
                       <button
-                        class="btn btn-outline-light btn-lg px-5"
+                        className="btn btn-outline-light btn-lg px-5"
                         type="submit"
                       >
                         Acceder

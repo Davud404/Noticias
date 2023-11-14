@@ -10,10 +10,9 @@ export async function obtener(recurso) {
   return await response.json();
 }
 
-export async function enviar(recurso) {
+export async function enviar(recurso, data) {
   const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
+    "Accept": "application/json",
   };
 
   const response = await fetch(URL + recurso, {
